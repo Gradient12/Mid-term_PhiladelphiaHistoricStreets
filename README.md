@@ -4,13 +4,13 @@ Topic: Philadelphia historic streets
 
 dataset: philadelphia-historic-streets.geojson
 
-Slide 1 - Paving materials
+Slide 1 - Paving materials:
   use different lines to show different paving material;
 
-Slide 2 - Street length
+Slide 2 - Street length:
   use color to show street length;
 
-Slide 3 - Street Class
+Slide 3 - Street Class:
   use color to show street class; 
   
 Use two buttons to navigate.
