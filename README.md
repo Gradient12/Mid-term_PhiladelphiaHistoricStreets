@@ -14,8 +14,8 @@ Slide 2
 
 Slide 3
   Historic street grouping by class
-  use color and/or line weight to show street class; user can control which classes to display
-
+  use color and/or line weight to show street class; 
+  
 Display street names along all historic streets in all slides.
 All street markers are clickable. When clicked, display information corresponding with color.
 Stretch goal: dynamically update marker or text display (scale or change color) with cursor position.
