@@ -18,5 +18,5 @@ Slide 3
   
 Display street names along all historic streets in all slides.
 All street markers are clickable. When clicked, display information corresponding with color.
-Stretch goal: dynamically update marker or text display (scale or change color) with cursor position.
+Street paving material will display along each street segment when the user zooms to a certain level.
 
