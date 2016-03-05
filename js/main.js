@@ -10,7 +10,7 @@ Slide 1
 
 Slide 2
   Historic street ranking by length
-  use color to show street length; mark the longest three streets
+  use color to show street length;
 
 Slide 3
   Historic street grouping by class
@@ -34,8 +34,11 @@ var slideNumber = 1;
 var body = document.body,
     tbl  = document.createElement('table');
 tbl.style.position = 'absolute';
-tbl.style.left = '450px';
+tbl.style.left = '20px';
+tbl.style.bottom = '200px';
 tbl.style.margin = '10px';
+tbl.style.color = 'white';
+tbl.style['font-size'] = '12px';
 
 body.appendChild(tbl);
 
@@ -374,7 +377,7 @@ var eachFeature = function(feature, layer) {
     // Some streets are divided into segments.
     //      using this method, the name will appear many times
     map.on('zoomend', function(){
-        testZoomShowStreetText(feature,16,propValue);
+        testZoomShowStreetText(feature,17,propValue);
     });
 };
 
@@ -471,7 +474,7 @@ Leaflet Configuration
 ===================== */
 
 var map = L.map('map', {
-  center: [40.000, -75.1090],
+  center: [39.9522, -75.1639],
   zoom: 15
 });
 
