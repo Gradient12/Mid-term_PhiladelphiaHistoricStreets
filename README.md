@@ -22,6 +22,11 @@ Function summary
 3. All street markers are clickable. When clicked, display information corresponding with color.
 
 Update log:
+2016-03-20
+1. Added circle markers for the endpoints of each historic street segment. 
+2. The text markers and endpoint markers will show by default and will update correctly.
+3. Fixed map clipping issue.
+
 2016-03-18
 1. Navigation changed from "previous-next" flipping buttons to three tab buttons.
 2. Text markers angle considers map projection.
