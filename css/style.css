@@ -4,10 +4,6 @@ body {
     font-family: colfax, helvetica, arial, sans-serif;
 }
 
-/*p.main {
-  font-size: 24px;
-}*/
-
 #topbar{
     position: fixed;
     top: 0px;
@@ -79,14 +75,6 @@ body {
   margin-top: 10px;
 }
 
-/*.body1{
-  font-family: helvetica;
-  font-size: 12px;
-  color:#777777;
-  margin: 2px;
-  text-align: left;
-  line-height: 20px;
-}*/
 
 .slideButton{
     background-color: black;

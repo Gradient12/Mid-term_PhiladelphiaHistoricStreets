@@ -37,6 +37,7 @@ var defaultWeight = 3;
 var defaultOpacity = 1;
 var textMarkers = [];
 var lineMarkers =[];
+var endpointMarkers = [];
 var countFeature = null;
 var slideNumber = 1;
 
@@ -281,7 +282,24 @@ var getStreetCenterAndAngle = function(coords){
     return result;
 };
 
-
+// Generate endpoint markers to show the segments.
+function getSegmentEndpointsMarkers(coords){
+    var col = "#868686";
+    var size = 2;
+    start = coords[0];
+    end = coords.slice(-1)[0];
+    var circle0 = L.circle([start[1],start[0]], size, {
+        color: col,
+        fillColor: col,
+        fillOpacity: 1
+    });
+    var circle1 = L.circle([end[1],end[0]], size, {
+        color: col,
+        fillColor: col,
+        fillOpacity: 1
+    });
+    return [circle0,circle1];
+}
 
 function resetTextMarkers(){
     _.each(textMarkers,function(m){
@@ -299,13 +317,21 @@ function resetSidebarText(){
     $('#selectedStreetProperty1').text("");
 }
 
+function resetEndpointMarkers(){
+    _.each(endpointMarkers,function(m){ map.removeLayer(m);});
+}
+
 // remove all markers from the map
 var resetMap = function() {
     resetLineMarkers();
     resetTextMarkers();
     resetSidebarText();
+    resetEndpointMarkers();
 };
 
+// For each street, if the zoom level is large enough, show specified text along the street.
+//      Some streets are divided into segments. Using this method, the name will appear many times
+//      Added endpoint markers to show the segments.
 function testZoomShowStreetText(feature,zoomLv,text){
     if (map.getZoom() >= zoomLv) {
         // show street names
@@ -329,13 +355,20 @@ function testZoomShowStreetText(feature,zoomLv,text){
             marker = L.rotatedMarker(latlng, {icon: textIcon,angle: streetAngle});
         }
 
+        // Add text markers
         if(textMarkers.length<countFeature){ // avoiding duplicates
             textMarkers.push(marker);
             marker.addTo(map);
         }
+
+        // Add endpoint markers
+        epMarkers = getSegmentEndpointsMarkers(feature.geometry.coordinates);
+        _.each(epMarkers,function(m){m.addTo(map);});
+        _.each(epMarkers,function(m){endpointMarkers.push(m);});
     }
     else {
         resetTextMarkers();
+        resetEndpointMarkers();
     }
 }
 
@@ -357,6 +390,8 @@ var eachFeature = function(feature, layer) {
         propValue = feature.properties.CLASS;
     }
 
+    testZoomShowStreetText(feature,17,propValue); // check zoom level when loading the slide
+
     layer.on('click', function (e) {
         $('#selectedStreet').text("Name: "+feature.properties.ON_STREET);
         $('#selectedStreetProperty1').text(propName + propValue);
@@ -366,8 +401,7 @@ var eachFeature = function(feature, layer) {
         map.fitBounds(this.getBounds(), fitBoundsOptions);
     });
 
-    // Some streets are divided into segments.
-    //      using this method, the name will appear many times
+    // check zoom level and display text markers and endpoint markers
     map.on('zoomend', function(){
         testZoomShowStreetText(feature,17,propValue);
     });
@@ -472,8 +506,8 @@ Leaflet Configuration
 ===================== */
 
 var map = L.map('map', {
-  center: [39.9522, -75.1639],
-  zoom: 15
+  center: [39.9522, -75.1450],
+  zoom: 17
 });
 
 var Stamen_TonerLite = L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
