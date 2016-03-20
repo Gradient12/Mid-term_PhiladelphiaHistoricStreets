@@ -1,25 +1,33 @@
-
 /*
 Topic: Philadelphia historic streets
 
 dataset: philadelphia-historic-streets.geojson
 
-Slide 1
-  Paving materials
-  use different lines to show different paving material;
+Function summary
+1. Switch among three properties:
+    Slide 1
+      Paving materials
+      use different lines to show different paving material;
 
-Slide 2
-  Historic street ranking by length
-  use color to show street length;
+    Slide 2
+      Historic street ranking by length
+      use color to show street length;
 
-Slide 3
-  Historic street grouping by class
-  use color and/or line weight to show street class; user can control which classes to display
+    Slide 3
+      Historic street grouping by class
+      use color and/or line weight to show street class; user can control which classes to display
 
-Display street names along all historic streets in all slides.
-All street markers are clickable. When clicked, display information corresponding with color.
-Stretch goal: dynamically update marker or text display (scale or change color) with cursor position.
+2. Zoom in to show paving material along all historic streets in all slides.
 
+3. All street markers are clickable. When clicked, display information corresponding with color.
+
+Update log:
+2016-03-18
+1. Navigation changed from "previous-next" flipping buttons to three tab buttons.
+2. Text markers angle considers map projection.
+3. Added a link to my website. Page theme changed to match my website (wordpress 2014)
+
+Peng Wang
 */
 
 var dataset = 'https://raw.githubusercontent.com/CPLN690-MUSA610/datasets/master/geojson/philadelphia-historic-streets.geojson';
@@ -31,16 +39,17 @@ var textMarkers = [];
 var lineMarkers =[];
 var countFeature = null;
 var slideNumber = 1;
-var body = document.body,
-    tbl  = document.createElement('table');
-tbl.style.position = 'absolute';
-tbl.style.left = '20px';
-tbl.style.bottom = '200px';
-tbl.style.margin = '10px';
-tbl.style.color = 'white';
+
+// Prepare to show Legend
+var tbl  = document.createElement('table');
+tbl.style.position = 'relative';
+tbl.style.left = '0px';
+tbl.style['margin-top'] = '10px';
+tbl.style.color = 'rgb(194, 194, 194)';
 tbl.style['font-size'] = '12px';
 
-body.appendChild(tbl);
+var sidebar = document.getElementById('sidebar');
+sidebar.appendChild(tbl);
 
 // "dictionary" for legend
 var pavingMaterialDict = {
@@ -145,8 +154,7 @@ var classStyle = function(feature){
     }
 };
 
-
-
+// called on slide change
 function updateLegendTable(dict){
     var rowCount = tbl.rows.length;
     for (var x=0; x<rowCount; x++) {
@@ -160,7 +168,6 @@ function updateLegendTable(dict){
         var key = Object.keys(dict)[i];
         var td1 = tr.insertCell();
         td1.style.width = '30px';
-        td1.style.height = '5px';
         td1.style['background-color'] = dict[key][1];
         var td2 = tr.insertCell();
         td2.style.padding = '5px';
@@ -169,7 +176,6 @@ function updateLegendTable(dict){
         td2.style['font-family'] ='helvetica';
     }
 }
-
 
 
 // Defining a rotating function
@@ -219,27 +225,7 @@ function getStreetLength(coords){
     return l;
 }
 
-// Calculate distance between Latitude/Longitude points
-// http://www.movable-type.co.uk/scripts/latlong.html
-function haversine(p1,p2){
-    lat1 = p1[1];
-    lat2 = p2[1];
-    lon1 = p1[0];
-    lon2 = p2[0];
-    var R = 6371000; // metres
-    var phi1 = lat1/180*Math.PI;
-    var phi2 = lat2/180*Math.PI;
-    var d_phi = (lat2-lat1)/180*Math.PI;
-    var d_lambda = (lon2-lon1)/180*Math.PI;
 
-    var a = Math.sin(d_phi/2) * Math.sin(d_phi/2) +
-            Math.cos(phi1) * Math.cos(phi2) *
-            Math.sin(d_lambda/2) * Math.sin(d_lambda/2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    var d = R * c;
-    return d*3.28084; // to feet
-}
 
 // Get the center point of a street to show its name.
 // A street may contain two or more points.
@@ -255,8 +241,8 @@ var getStreetCenterAndAngle = function(coords){
     if(n ===2){ // two points
         var a1 = coords[0];
         var b1 = coords[1];
-        midPt = vectorAvg2d(a1,b1);
-        angle = getVectorDirAngle(vectorSubtract2d(b1,a1));
+        midPt = vectorAvg2d(a1,b1);// disregard projection
+        angle = getAngleBasedOnBearing(b1,a1);
     }
     else if(n>2){
         var accumLength = 0;
@@ -284,8 +270,8 @@ var getStreetCenterAndAngle = function(coords){
         var c = coords[middleSegmentNumber];
         var d = coords[middleSegmentNumber+1];
 
-        midPt = vectorAvg2d(c,d);
-        angle = getVectorDirAngle(vectorSubtract2d(d,c));
+        midPt = vectorAvg2d(c,d); // disregard projection
+        angle = getAngleBasedOnBearing(d,c);
     }
     else{
         midPt = null;
@@ -308,10 +294,16 @@ function resetLineMarkers(){
     map.removeLayer(lineMarkers);
 }
 
+function resetSidebarText(){
+    $('#selectedStreet').text("Select a street to view its properties.");
+    $('#selectedStreetProperty1').text("");
+}
+
 // remove all markers from the map
 var resetMap = function() {
     resetLineMarkers();
     resetTextMarkers();
+    resetSidebarText();
 };
 
 function testZoomShowStreetText(feature,zoomLv,text){
@@ -319,9 +311,9 @@ function testZoomShowStreetText(feature,zoomLv,text){
         // show street names
         var latlng = [feature.geometry.coordinates[0][1],feature.geometry.coordinates[0][0]];
         var textIcon = L.divIcon({
-            className: 'label',
+            className: 'my-div-icon', // set its style in CSS
             html: text,
-            iconSize: [100, 40]
+            iconSize: [100, 40],
         });
 
         var centerAndAngle = getStreetCenterAndAngle(feature.geometry.coordinates);
@@ -396,9 +388,17 @@ $(document).ready(function() {
     countFeature = allStreets.features.length;
     loadSlide_Paving();
   });
-
-
 });
+
+function highlightButtonInGroup(btnId,groupClass) {
+    var buttonGroup = document.getElementsByClassName(groupClass)[0];
+    var n = buttonGroup.children.length;
+    for(var i = 0; i < n; i++) {
+        buttonGroup.children[i].className = "slideButton";
+    }
+    var selected = document.getElementById(btnId);
+    selected.className = "selectedButton";
+}
 
 function loadSlide_Paving(){
     lineMarkers = L.geoJson(allStreets, {
@@ -408,8 +408,7 @@ function loadSlide_Paving(){
     });
     lineMarkers.addTo(map);
     updateLegendTable(pavingMaterialDict);
-    $('#slideTitle').text("Paving Material");
-
+    highlightButtonInGroup('btn-streetMaterial','btn-group-vertical');
 }
 
 function loadSlide_Length(){
@@ -420,7 +419,7 @@ function loadSlide_Length(){
     });
     lineMarkers.addTo(map);
     updateLegendTable(streetLengthDict);
-    $('#slideTitle').text("Street Length");
+    highlightButtonInGroup('btn-streetLength','btn-group-vertical');
 }
 
 function loadSlide_Class(){
@@ -431,13 +430,11 @@ function loadSlide_Class(){
     });
     lineMarkers.addTo(map);
     updateLegendTable(streetClassDict);
-    $('#slideTitle').text("Street Class");
+    highlightButtonInGroup('btn-streetClass','btn-group-vertical');
 }
 
-function loadSlide(number){
+function loadSlide(slideNumber){
     resetMap();
-    $('#selectedStreet').text("Select a Street");
-    $('#selectedStreetProperty1').text("");
     switch (slideNumber) {
         case 1:
             loadSlide_Paving();
@@ -454,17 +451,18 @@ function loadSlide(number){
     console.log("Current slide: " + slideNumber);
 }
 
-$( "#btnPrevious" ).click(function() {
-    if(slideNumber>1){
-        slideNumber--;
-    }
+$( "#btn-streetMaterial" ).click(function() {
+    slideNumber = 1;
     loadSlide(slideNumber);
 });
 
-$( "#btnNext" ).click(function() {
-    if(slideNumber<3){
-        slideNumber++;
-    }
+$( "#btn-streetLength" ).click(function() {
+    slideNumber = 2;
+    loadSlide(slideNumber);
+});
+
+$( "#btn-streetClass" ).click(function() {
+    slideNumber = 3;
     loadSlide(slideNumber);
 });
 

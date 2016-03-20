@@ -2,32 +2,36 @@
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Philly Historic Streets</title>
     <!-- CSS Imports -->
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/leaflet.css" />
     <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div id="top" class="rowDiv">
-          <h1 class="title1">Historic Streets in Philadelphia</h1>
-        </div>
-        <br>
-        <p class="title2" id="slideTitle">Paving Material</p>
-        <br><br>
-        <p class="title3" id="selectedStreet">Select a street</p>
 
-        <p class="title3" id="selectedStreetProperty1"></p>
-        <br><br>
-        <div id="bottom" class="rowDiv">
-            <p>
-                <button class="colorButton" id="btnPrevious">Previous</button>
-            </p>
-            <p>
-                <button class="colorButton" id="btnNext">Next</button>
-            </p>        
+  <body>
+      <div id="topbar">
+          <div class="topLeftBlock">
+              <p class="title1">Historic Streets in Philadelphia</p>
+          </div>
+          <div class="topRightBlock">
+              <a href="http://www.pengdesign.us/">
+                  <img src="image/pdsLogo-50.png">
+              </a>
+          </div>
+      </div>
+      <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="btn-group-vertical fullWidthDark">
+          <button type="button" class="slideButton" id="btn-streetMaterial">Paving Material</button>
+          <button type="button" class="slideButton" id="btn-streetLength">Length</button>
+          <button type="button" class="slideButton" id="btn-streetClass">Class</button>
         </div>
+        <p class="title3" id="selectedStreet">Select a street to view its properties.</p>
+        <p class="title3" id="selectedStreetProperty1"></p>
+        <p class="title2" id="selectedStreetProperty1">Legend</p>
+
     </div>
     <!-- Map -->
     <div id="map" class="map"></div>
