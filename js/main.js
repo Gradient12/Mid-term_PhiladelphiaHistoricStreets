@@ -383,15 +383,16 @@ var eachFeature = function(feature, layer) {
     else if (slideNumber ===2) {
         propName = "Segment Length: ";
         l = getStreetLength(feature.geometry.coordinates);
-        propValue = l.toString();
+        propValue = l.toPrecision(4) + ' ft';
     }
     else if (slideNumber === 3) {
         propName = "Street Class: ";
-        propValue = feature.properties.CLASS;
+        propValue = 'Class: ' + feature.properties.CLASS;
     }
 
     testZoomShowStreetText(feature,17,propValue); // check zoom level when loading the slide
-
+    //console.log("Processed one street");
+    
     layer.on('click', function (e) {
         $('#selectedStreet').text("Name: "+feature.properties.ON_STREET);
         $('#selectedStreetProperty1').text(propName + propValue);
@@ -403,10 +404,21 @@ var eachFeature = function(feature, layer) {
 
     // check zoom level and display text markers and endpoint markers
     map.on('zoomend', function(){
+        // console.log("zoomend");
+        // check property to show
+        if(slideNumber === 1){
+            propValue = feature.properties.PRIMARYROA;
+        }
+        else if (slideNumber ===2) {
+            l = getStreetLength(feature.geometry.coordinates);
+            propValue = l.toPrecision(4) + ' ft';
+        }
+        else if (slideNumber === 3) {
+            propValue = 'Class: ' + feature.properties.CLASS;
+        }
         testZoomShowStreetText(feature,17,propValue);
     });
 };
-
 
 
 
